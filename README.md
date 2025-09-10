@@ -1,76 +1,54 @@
-# RAG Pipeline
+# RAG Pipeline for Legal and General Document QA
 
-This repository converts the original Jupyter notebook `RAG_PIPELINE_MAIN.ipynb` into a reproducible Python package.
+## Overview
+This project implements a **Retrieval-Augmented Generation (RAG) pipeline** refactored from a Jupyter notebook into a Python package. It provides a modular framework for document ingestion, retrieval, and generation, enabling efficient question answering over contracts, reports, or other structured text.
 
-## What changed
-- Consolidated imports into one section.
-- Removed duplicate cells and repeated function/class definitions (listed below).
-- Removed notebook magics (`%...`, `!pip ...`) and kept pure Python.
-- Produced a single entry module: `rag_pipeline/pipeline.py`.
+The system:
+- Loads and preprocesses documents with **heading-based chunking** and **header/footer cleanup**.  
+- Uses **BM25** and **dense embeddings** (HuggingFace, MistralAI) for **hybrid retrieval**.  
+- Improves retrieval accuracy with a **Cross-Encoder reranker**.  
+- Supports **language detection**, **fuzzy heading matching**, and **intent-aware query handling**.  
+- Generates answers with **LLMs** (Mistral or HuggingFace Transformers).  
 
-## Redundancies removed
-- Duplicate cells (by content hash): 0
-- Duplicate function/class definitions removed: 0
+---
 
-See `artifacts/redundancy_report.json` for details.
+## Document Preprocessing
+- **Chunking** based on headings and regex patterns.  
+- **Noise removal**: headers, footers, multi-column handling.  
+- **Metadata assignment** for traceability across retrieval steps.  
 
-## Quick start
+---
 
-```bash
-# 1) Create and activate env (example with venv)
-python -m venv .venv
-source .venv/bin/activate  # on Windows: .venv\Scripts\activate
+## Retrieval and Reranking
+- **BM25 Retriever** for keyword relevance.  
+- **Dense Vector Retrieval** using HuggingFace and MistralAI embeddings.  
+- **Hybrid fusion** of lexical + semantic signals.  
+- **Cross-Encoder reranking** (Sentence Transformers) for precision.  
 
-# 2) Install this project in editable mode
-pip install -e .
+---
 
-# 3) Run the pipeline (module entry)
-python -m rag_pipeline.pipeline
-```
+## Generation
+- Query passed to selected **LLM (Mistral, HuggingFace models)**.  
+- Retrieved context is injected for **context-aware responses**.  
+- Supports clause/party extraction experiments with **Label Studio**.  
 
-> Note: If the original notebook expected data paths or environment variables, set them in `.env` (see `.env.example`).
+---
 
-## Project layout
-```
-rag-pipeline/
-├─ src/
-│  └─ rag_pipeline/
-│     └─ pipeline.py
-├─ tests/
-├─ artifacts/
-│  └─ redundancy_report.json
-├─ pyproject.toml
-├─ requirements.txt
-├─ README.md
-└─ .gitignore
-```
+## Features
+- Hybrid retrieval combining semantic and lexical search.  
+- Heading-based document chunking for improved context segmentation.  
+- Cross-encoder reranking to boost retrieval accuracy.  
+- Intent classification and fuzzy heading matching.  
+- Clause/party annotation support (unfinished, experimental).  
+
+---
 
 ## Requirements
-`requirements.txt` was inferred from import statements in the notebook. You may need to add or remove items based on your environment.
+Key dependencies include:
+- `langchain`, `langchain_core`, `langchain_community`, `langchain_huggingface`, `langchain_mistralai`  
+- `sentence_transformers`, `transformers`, `torch`  
+- `mistralai`, `fitz` (PyMuPDF), `rapidfuzz`, `langid`, `numpy`  
 
-## How to publish to GitHub (new repo)
+See [requirements.txt](./requirements.txt) for the full list.  
 
-```bash
-# Configure Git (if you haven't)
-git config --global user.name "Your Name"
-git config --global user.email "you@example.com"
-
-# Initialize and commit
-git init
-git add .
-git commit -m "Initial commit: RAG pipeline (from notebook)"
-
-# Create a new repo on GitHub first (via UI).
-# Then add the remote and push:
-git branch -M main
-git remote add origin https://github.com/<your-username>/<your-repo>.git
-git push -u origin main
-```
-
-## How to push changes later
-```bash
-git add -A
-git commit -m "Update pipeline / fix X"
-git push
-```
-
+---
